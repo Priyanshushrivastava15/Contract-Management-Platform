@@ -8,17 +8,34 @@ const { Blueprint, Contract, User } = require('./models');
 
 const app = express();
 
-// --- UPDATED CORS CONFIGURATION ---
-// Added the Render URL to the allowed origins to fix the deployment error
+// --- ROBUST CORS CONFIGURATION ---
+// This configuration dynamically validates origins to handle multiple Vercel deployments
+// and local development without needing to hardcode every unique URL.
+const allowedOrigins = [
+  "https://contract-management-platform-flax.vercel.app",
+  "https://contract-management-platform-oxzymo2t2.vercel.app",
+  "https://contract-management-platform-24nbjylg2.vercel.app",
+  "https://contract-management-platform-1h0b.onrender.com",
+  "http://localhost:5173"
+];
+
 app.use(cors({
-  origin: [
-    "https://contract-management-platform-flax.vercel.app",
-    "https://contract-management-platform-oxzymo2t2.vercel.app",
-    "https://contract-management-platform-1h0b.onrender.com",
-    "http://localhost:5173"
-  ],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    const isAllowed = allowedOrigins.includes(origin) || 
+                     origin.endsWith(".vercel.app"); // Trust all Vercel subdomains for this project
+
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
-  credentials: true
+  credentials: true,
+  optionsSuccessStatus: 200
 }));
 
 app.use(express.json());
