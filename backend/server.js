@@ -9,6 +9,7 @@ const { Blueprint, Contract, User } = require('./models');
 const app = express();
 
 // --- UPDATED CORS CONFIGURATION ---
+// Combined all your Vercel deployment origins to ensure requests are never blocked
 app.use(cors({
   origin: [
     "https://contract-management-platform-flax.vercel.app",
