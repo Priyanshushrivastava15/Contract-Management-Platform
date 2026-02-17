@@ -10,7 +10,11 @@ const app = express();
 
 // --- UPDATED CORS CONFIGURATION ---
 app.use(cors({
-  origin: ["https://contract-management-platform-flax.vercel.app", "http://localhost:5173"],
+  origin: [
+    "https://contract-management-platform-flax.vercel.app",
+    "https://contract-management-platform-oxzymo2t2.vercel.app",
+    "http://localhost:5173"
+  ],
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   credentials: true
 }));
