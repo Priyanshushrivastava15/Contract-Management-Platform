@@ -38,7 +38,6 @@ export default function BlueprintCreator({ onCreated }) {
     if (fields.length === 0) return toast.error("Add at least one field to your template");
     if (fields.some(f => !f.label.trim())) return toast.error("All fields must have a label");
 
-    // Initialize logical defaults for instances (e.g., current date for date pickers)
     const sanitizedFields = fields.map(f => ({
       ...f,
       value: f.type === 'date' ? new Date().toISOString().split('T')[0] : ""
@@ -69,7 +68,7 @@ export default function BlueprintCreator({ onCreated }) {
     <motion.div 
       initial={{ opacity: 0, y: 10 }} 
       animate={{ opacity: 1, y: 0 }} 
-      className="bg-white dark:bg-slate-900 p-5 md:p-8 rounded-[2.5rem] shadow-xl border border-slate-100 dark:border-slate-800 max-w-4xl mx-auto"
+      className="bg-white dark:bg-slate-900 p-5 md:p-8 rounded-[2.5rem] shadow-xl border border-slate-100 dark:border-slate-800 max-w-4xl mx-auto transition-colors duration-300"
     >
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-6">
         <div className="flex items-center gap-4">
@@ -78,7 +77,7 @@ export default function BlueprintCreator({ onCreated }) {
           </div>
           <div>
             <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Template Architect</h2>
-            <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">Structural Design Mode</p>
+            <p className="text-slate-400 dark:text-slate-500 text-xs font-bold uppercase tracking-widest">Structural Design Mode</p>
           </div>
         </div>
         <div className="flex gap-3">
@@ -93,7 +92,7 @@ export default function BlueprintCreator({ onCreated }) {
 
       <div className="space-y-8">
         <div className="relative group">
-          <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1 mb-2 block">
+          <label className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest ml-1 mb-2 block">
             Blueprint Identity
           </label>
           <input 
@@ -107,7 +106,7 @@ export default function BlueprintCreator({ onCreated }) {
 
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
-            <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">
+            <label className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest">
               Schema Definitions ({fields.length})
             </label>
           </div>
@@ -119,12 +118,12 @@ export default function BlueprintCreator({ onCreated }) {
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className="flex flex-col md:flex-row gap-4 p-5 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl group relative"
+                className="flex flex-col md:flex-row gap-4 p-5 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl group relative transition-colors duration-300"
               >
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1.5 ml-1">
                     <Type size={12} className="text-slate-400" />
-                    <span className="text-[10px] font-bold text-slate-400 uppercase">Field Label</span>
+                    <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase">Field Label</span>
                   </div>
                   <input 
                     type="text" 
@@ -138,7 +137,7 @@ export default function BlueprintCreator({ onCreated }) {
                 <div className="flex flex-row md:flex-col gap-4">
                   <div className="flex flex-1 gap-2">
                     <select 
-                      className="flex-1 md:w-48 p-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 dark:text-white rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-indigo-500 transition-all cursor-pointer"
+                      className="flex-1 md:w-48 p-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 dark:text-white rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-indigo-500 transition-all cursor-pointer"
                       value={field.type}
                       onChange={(e) => updateField(field.id, 'type', e.target.value)}
                     >
@@ -176,29 +175,20 @@ export default function BlueprintCreator({ onCreated }) {
       
       {fields.length > 0 && (
         <div className="mt-8 pt-6 border-t border-slate-50 dark:border-slate-800 flex items-center justify-center gap-8">
-            <div className="flex items-center gap-2 opacity-30 dark:text-white">
+            <div className="flex items-center gap-2 opacity-30 dark:opacity-50 dark:text-white">
                 <Calendar size={14} />
                 <span className="text-[10px] font-bold uppercase tracking-widest">Date Ready</span>
             </div>
-            <div className="flex items-center gap-2 opacity-30 dark:text-white">
+            <div className="flex items-center gap-2 opacity-30 dark:opacity-50 dark:text-white">
                 <CheckSquare size={14} />
                 <span className="text-[10px] font-bold uppercase tracking-widest">Logic Ready</span>
             </div>
-            <div className="flex items-center gap-2 opacity-30 dark:text-white">
+            <div className="flex items-center gap-2 opacity-30 dark:opacity-50 dark:text-white">
                 <PenTool size={14} />
                 <span className="text-[10px] font-bold uppercase tracking-widest">Legal Ready</span>
             </div>
         </div>
       )}
     </motion.div>
-  );
-}
-
-function Settings({ size, className }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
-      <circle cx="12" cy="12" r="3"/>
-    </svg>
   );
 }

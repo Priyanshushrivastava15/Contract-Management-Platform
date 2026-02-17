@@ -8,7 +8,6 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 export default function ContractEditor({ contract, onSave, onClose }) {
   const [fields, setFields] = useState(contract?.fields || []);
 
-  // Fixed synchronization for switching between contracts
   useEffect(() => {
     if (contract) {
       setFields(contract.fields || []);
@@ -31,13 +30,13 @@ export default function ContractEditor({ contract, onSave, onClose }) {
 
   return (
     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl flex flex-col md:flex-row overflow-hidden border border-slate-200">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-2xl flex flex-col md:flex-row overflow-hidden border border-slate-200 dark:border-slate-800 transition-colors duration-300">
         
-        <div className="flex-1 flex flex-col min-h-0 bg-white">
-          <div className="p-6 border-b flex justify-between items-center bg-slate-50">
+        <div className="flex-1 flex flex-col min-h-0 bg-white dark:bg-slate-900">
+          <div className="p-6 border-b dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50">
             <div>
-              <h2 className="text-xl font-black text-slate-800 tracking-tight">{contract.name}</h2>
-              <p className="text-[10px] text-indigo-600 uppercase tracking-widest font-bold">Secure Data Entry Mode</p>
+              <h2 className="text-xl font-black text-slate-800 dark:text-white tracking-tight">{contract.name}</h2>
+              <p className="text-[10px] text-indigo-600 dark:text-indigo-400 uppercase tracking-widest font-bold">Secure Data Entry Mode</p>
             </div>
             <button onClick={onClose} className="text-slate-400 hover:text-slate-600 md:hidden transition-colors">
               <X />
@@ -47,12 +46,12 @@ export default function ContractEditor({ contract, onSave, onClose }) {
           <div className="p-6 space-y-5 overflow-y-auto max-h-[60vh]">
             {fields.map((field) => (
               <div key={field.id} className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-tight ml-1">{field.label}</label>
+                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-tight ml-1">{field.label}</label>
                 
                 {field.type === 'text' && (
                   <input 
                     type="text" 
-                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all placeholder:text-slate-300"
+                    className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all placeholder:text-slate-300 dark:text-white"
                     placeholder={`Enter ${field.label.toLowerCase()}...`}
                     value={field.value || ""}
                     onChange={(e) => handleChange(field.id, e.target.value)}
@@ -62,35 +61,36 @@ export default function ContractEditor({ contract, onSave, onClose }) {
                 {field.type === 'date' && (
                   <input 
                     type="date" 
-                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                    className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all dark:text-white"
                     value={field.value || ""}
                     onChange={(e) => handleChange(field.id, e.target.value)}
                   />
                 )}
 
                 {field.type === 'checkbox' && (
-                  <label className="flex items-center gap-3 p-4 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors">
+                  <label className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
                     <input 
                       type="checkbox" 
-                      className="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 transition-all cursor-pointer"
+                      className="w-5 h-5 rounded border-slate-300 dark:border-slate-600 text-indigo-600 focus:ring-indigo-500 transition-all cursor-pointer"
                       checked={field.value === true}
                       onChange={(e) => handleChange(field.id, e.target.checked)}
                     />
-                    <span className="text-sm font-semibold text-slate-700">Acknowledge & Verify Information</span>
+                    <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Acknowledge & Verify Information</span>
                   </label>
                 )}
 
                 {field.type === 'signature' && (
                   <div className="space-y-2">
-                    <div className="h-20 border-2 border-dashed border-slate-200 rounded-xl flex items-center justify-center bg-slate-50 italic text-slate-400 transition-all">
+                    <div className="h-20 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl flex items-center justify-center bg-slate-50 dark:bg-slate-800 italic text-slate-400 transition-all">
                        {field.value ? (
-                         <span className="font-serif text-slate-800 text-2xl tracking-tighter">/ {field.value} /</span>
+                         <span className="font-serif text-slate-800 dark:text-slate-200 text-2xl tracking-tighter">/ {field.value} /</span>
                        ) : "Digital Signature Pending"}
                     </div>
                     <input 
                       type="text" 
                       placeholder="Type your full name to sign"
-                      className="w-full p-2 text-sm border-b border-slate-200 outline-none focus:border-indigo-500 text-center bg-transparent transition-all"
+                      className="w-full p-2 text-sm border-b border-slate-200 dark:border-slate-700 outline-none focus:border-indigo-500 text-center bg-transparent transition-all dark:text-white"
+                      value={field.value || ""}
                       onChange={(e) => handleChange(field.id, e.target.value)}
                     />
                   </div>
@@ -99,11 +99,11 @@ export default function ContractEditor({ contract, onSave, onClose }) {
             ))}
           </div>
 
-          <div className="p-6 border-t bg-slate-50 flex gap-3 mt-auto">
+          <div className="p-6 border-t dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex gap-3 mt-auto">
             <button 
               onClick={handleSave}
               disabled={['LOCKED', 'REVOKED'].includes(contract.status)}
-              className="w-full bg-slate-900 text-white px-6 py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-lg active:scale-[0.98]"
+              className="w-full bg-slate-900 dark:bg-indigo-600 text-white px-6 py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-slate-800 dark:hover:bg-indigo-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-lg active:scale-[0.98]"
             >
               <Save size={18} /> Update Document
             </button>

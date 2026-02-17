@@ -2,13 +2,13 @@
 
 @layer base {
   body {
-    /* Smooth transition for theme switching */
-    @apply bg-slate-50 text-slate-900 transition-colors duration-300;
+    /* Updated default text color to #ff4c4c */
+    @apply bg-slate-50 text-[#ff4c4c] transition-colors duration-300;
   }
 
-  /* Force dark mode background on the root element */
+  /* Force dark mode background while keeping the coral text */
   html.dark body {
-    @apply bg-slate-950 text-slate-100;
+    @apply bg-slate-950 text-[#ff4c4c];
   }
 }
 
@@ -21,4 +21,15 @@
 }
 .dark ::-webkit-scrollbar-thumb {
   @apply bg-slate-700 rounded-full;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 }
