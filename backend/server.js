@@ -7,11 +7,19 @@ require('dotenv').config();
 const { Blueprint, Contract, User } = require('./models');
 
 const app = express();
-app.use(cors());
+
+// --- UPDATED CORS CONFIGURATION ---
+app.use(cors({
+  origin: ["https://contract-management-platform-flax.vercel.app", "http://localhost:5173"],
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+  credentials: true
+}));
+
 app.use(express.json());
 
 const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_123';
 
+// --- AUTH MIDDLEWARE ---
 const authenticate = (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) return res.status(401).json({ error: "Unauthorized" });
@@ -21,6 +29,7 @@ const authenticate = (req, res, next) => {
   } catch (e) { res.status(401).json({ error: "Invalid Session" }); }
 };
 
+// --- AUTH ROUTES ---
 app.post('/api/auth/register', async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
@@ -39,7 +48,7 @@ app.post('/api/auth/login', async (req, res) => {
   res.json({ token, user: { name: user.name, email: user.email } });
 });
 
-// BLUEPRINT ROUTES
+// --- BLUEPRINT ROUTES ---
 app.post('/api/blueprints', authenticate, async (req, res) => {
   try {
     const blueprint = new Blueprint({ ...req.body, createdBy: req.user.id });
@@ -55,7 +64,6 @@ app.get('/api/blueprints', authenticate, async (req, res) => {
   } catch (err) { res.status(500).json({ error: "Fetch failed" }); }
 });
 
-// NEW: Delete Blueprint
 app.delete('/api/blueprints/:id', authenticate, async (req, res) => {
   try {
     const bp = await Blueprint.findOneAndDelete({ _id: req.params.id, createdBy: req.user.id });
@@ -64,7 +72,7 @@ app.delete('/api/blueprints/:id', authenticate, async (req, res) => {
   } catch (err) { res.status(500).json({ error: "Deletion failed" }); }
 });
 
-// CONTRACT ROUTES
+// --- CONTRACT ROUTES ---
 app.post('/api/contracts', authenticate, async (req, res) => {
   try {
     const bp = await Blueprint.findById(req.body.blueprintId);
@@ -96,11 +104,6 @@ app.patch('/api/contracts/:id/status', authenticate, async (req, res) => {
     const contract = await Contract.findOne({ _id: req.params.id, createdBy: req.user.id });
     if (!contract) return res.status(404).json({ error: "Not found" });
     
-    const protectedStates = ['SIGNED', 'LOCKED'];
-    if (protectedStates.includes(contract.status) && req.body.nextStatus === 'CREATED') {
-      return res.status(400).json({ error: "Cannot revert a signed or locked document" });
-    }
-
     contract.statusHistory.push({ from: contract.status, to: req.body.nextStatus, updatedBy: req.user.id });
     contract.status = req.body.nextStatus;
     await contract.save();
@@ -120,5 +123,6 @@ app.put('/api/contracts/:id', authenticate, async (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/contract_db')
-  .then(() => app.listen(PORT, () => console.log(`🚀 Isolated Server on ${PORT}`)));
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => app.listen(PORT, () => console.log(`🚀 Production Server on ${PORT}`)))
+  .catch(err => console.error("DB Connection Error:", err));
