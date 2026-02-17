@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 
-// --- USER SCHEMA (For Auth) ---
 const UserSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
@@ -8,7 +7,6 @@ const UserSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
-// --- FIELD SCHEMA ---
 const FieldSchema = new mongoose.Schema({
   id: { type: String, required: true },
   type: { type: String, enum: ['text', 'date', 'signature', 'checkbox'], required: true },
@@ -17,7 +15,6 @@ const FieldSchema = new mongoose.Schema({
   value: { type: mongoose.Schema.Types.Mixed, default: "" }
 });
 
-// --- BLUEPRINT SCHEMA ---
 const BlueprintSchema = new mongoose.Schema({
   name: { type: String, required: true },
   fields: [FieldSchema],
@@ -25,7 +22,6 @@ const BlueprintSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
-// --- CONTRACT SCHEMA ---
 const ContractSchema = new mongoose.Schema({
   name: { type: String, required: true },
   blueprintId: { type: mongoose.Schema.Types.ObjectId, ref: 'Blueprint' },
@@ -35,6 +31,7 @@ const ContractSchema = new mongoose.Schema({
     default: 'CREATED' 
   },
   fields: [FieldSchema],
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, 
   statusHistory: [{ 
     from: String, 
     to: String, 

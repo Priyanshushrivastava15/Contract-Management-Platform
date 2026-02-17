@@ -12,7 +12,6 @@ app.use(express.json());
 
 const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_123';
 
-// --- AUTH MIDDLEWARE ---
 const authenticate = (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) return res.status(401).json({ error: "Unauthorized" });
@@ -22,7 +21,6 @@ const authenticate = (req, res, next) => {
   } catch (e) { res.status(401).json({ error: "Invalid Session" }); }
 };
 
-// --- AUTH ROUTES ---
 app.post('/api/auth/register', async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
@@ -41,7 +39,7 @@ app.post('/api/auth/login', async (req, res) => {
   res.json({ token, user: { name: user.name, email: user.email } });
 });
 
-// --- BLUEPRINT ROUTES (ISOLATED) ---
+// BLUEPRINT ROUTES
 app.post('/api/blueprints', authenticate, async (req, res) => {
   try {
     const blueprint = new Blueprint({ ...req.body, createdBy: req.user.id });
@@ -57,7 +55,16 @@ app.get('/api/blueprints', authenticate, async (req, res) => {
   } catch (err) { res.status(500).json({ error: "Fetch failed" }); }
 });
 
-// --- CONTRACT ROUTES (ISOLATED) ---
+// NEW: Delete Blueprint
+app.delete('/api/blueprints/:id', authenticate, async (req, res) => {
+  try {
+    const bp = await Blueprint.findOneAndDelete({ _id: req.params.id, createdBy: req.user.id });
+    if (!bp) return res.status(404).json({ error: "Blueprint not found" });
+    res.json({ message: "Blueprint deleted" });
+  } catch (err) { res.status(500).json({ error: "Deletion failed" }); }
+});
+
+// CONTRACT ROUTES
 app.post('/api/contracts', authenticate, async (req, res) => {
   try {
     const bp = await Blueprint.findById(req.body.blueprintId);
@@ -67,7 +74,7 @@ app.post('/api/contracts', authenticate, async (req, res) => {
       name: req.body.name,
       blueprintId: bp._id,
       createdBy: req.user.id,
-      fields: bp.fields.map(f => ({ ...f.toObject(), value: "" })),
+      fields: bp.fields.map(f => ({ ...f.toObject(), value: f.value || "" })),
       status: 'CREATED'
     });
     await contract.save();
@@ -84,12 +91,16 @@ app.get('/api/contracts', authenticate, async (req, res) => {
   } catch (err) { res.status(500).json({ error: "Fetch failed" }); }
 });
 
-// --- STATUS & UPDATE ---
 app.patch('/api/contracts/:id/status', authenticate, async (req, res) => {
   try {
     const contract = await Contract.findOne({ _id: req.params.id, createdBy: req.user.id });
     if (!contract) return res.status(404).json({ error: "Not found" });
     
+    const protectedStates = ['SIGNED', 'LOCKED'];
+    if (protectedStates.includes(contract.status) && req.body.nextStatus === 'CREATED') {
+      return res.status(400).json({ error: "Cannot revert a signed or locked document" });
+    }
+
     contract.statusHistory.push({ from: contract.status, to: req.body.nextStatus, updatedBy: req.user.id });
     contract.status = req.body.nextStatus;
     await contract.save();
@@ -100,7 +111,7 @@ app.patch('/api/contracts/:id/status', authenticate, async (req, res) => {
 app.put('/api/contracts/:id', authenticate, async (req, res) => {
   try {
     const contract = await Contract.findOne({ _id: req.params.id, createdBy: req.user.id });
-    if (['LOCKED', 'REVOKED'].includes(contract.status) && req.body.nextStatus !== 'CREATED') 
+    if (['LOCKED', 'REVOKED'].includes(contract.status)) 
         return res.status(403).json({ error: "Immutable" });
     contract.fields = req.body.fields;
     await contract.save();

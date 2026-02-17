@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Save, X, Clock, CheckCircle2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
@@ -6,7 +6,14 @@ import { toast } from 'react-hot-toast';
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 export default function ContractEditor({ contract, onSave, onClose }) {
-  const [fields, setFields] = useState(contract.fields);
+  const [fields, setFields] = useState(contract?.fields || []);
+
+  // Fixed synchronization for switching between contracts
+  useEffect(() => {
+    if (contract) {
+      setFields(contract.fields || []);
+    }
+  }, [contract]);
 
   const handleChange = (id, value) => {
     setFields(fields.map(f => f.id === id ? { ...f, value } : f));
@@ -26,7 +33,6 @@ export default function ContractEditor({ contract, onSave, onClose }) {
     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl flex flex-col md:flex-row overflow-hidden border border-slate-200">
         
-        {/* Left Side: Form Fields */}
         <div className="flex-1 flex flex-col min-h-0 bg-white">
           <div className="p-6 border-b flex justify-between items-center bg-slate-50">
             <div>
@@ -104,7 +110,6 @@ export default function ContractEditor({ contract, onSave, onClose }) {
           </div>
         </div>
 
-        {/* Right Side: Status Timeline */}
         <div className="w-full md:w-64 bg-slate-900 p-6 text-white overflow-y-auto border-l border-slate-800">
           <div className="flex items-center justify-between mb-8">
             <h3 className="font-bold flex items-center gap-2 text-sm tracking-tight">
@@ -116,10 +121,9 @@ export default function ContractEditor({ contract, onSave, onClose }) {
           </div>
 
           <div className="relative space-y-8">
-            {/* The vertical line */}
             <div className="absolute left-2.5 top-0 bottom-0 w-0.5 bg-slate-800"></div>
 
-            {contract.statusHistory.map((log, i) => (
+            {contract.statusHistory?.map((log, i) => (
               <div key={i} className="relative pl-8">
                 <div className="absolute left-0 top-1.5 w-5 h-5 bg-indigo-500 rounded-full border-4 border-slate-900 flex items-center justify-center shadow-lg">
                   <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
@@ -129,7 +133,6 @@ export default function ContractEditor({ contract, onSave, onClose }) {
               </div>
             ))}
             
-            {/* Current Status Node */}
             <div className="relative pl-8">
                <div className="absolute left-0 top-1.5 w-5 h-5 bg-emerald-500 rounded-full border-4 border-slate-900 flex items-center justify-center animate-pulse shadow-lg">
                   <CheckCircle2 size={10} className="text-white" />
