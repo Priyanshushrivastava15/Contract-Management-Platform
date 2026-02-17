@@ -9,11 +9,12 @@ const { Blueprint, Contract, User } = require('./models');
 const app = express();
 
 // --- UPDATED CORS CONFIGURATION ---
-// Combined all your Vercel deployment origins to ensure requests are never blocked
+// Added the Render URL to the allowed origins to fix the deployment error
 app.use(cors({
   origin: [
     "https://contract-management-platform-flax.vercel.app",
     "https://contract-management-platform-oxzymo2t2.vercel.app",
+    "https://contract-management-platform-1h0b.onrender.com",
     "http://localhost:5173"
   ],
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
